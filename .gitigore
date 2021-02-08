@@ -1,0 +1,3 @@
+udo systemctl start mysql
+.gitigore
+.git
