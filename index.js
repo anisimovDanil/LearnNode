@@ -26,7 +26,8 @@ app.post('/', urlencodedParser, function(req, res) {
 	var login = req.body.login;
 	var password = req.body.password;
 	if (login && password) {
-		connection.query('SELECT * FROM people WHERE login = ? AND password = ?', [login, password], function(error, results, fields) {
+		//connection.query('SELECT * FROM people WHERE login = ? AND password = ?', [login, password], function(error, results, fields) { // protection
+		connection.query("SELECT * FROM people WHERE login = '" + login + "' AND password = '" + password + "'", function(error, results, fields) {
 
 			if (error) throw error;
 			else{
@@ -51,3 +52,6 @@ app.post('/', urlencodedParser, function(req, res) {
 app.listen(3000, function() {
     console.log('Server is running on port 3000...');
 });
+
+//sql
+// '; OR 1=1'
