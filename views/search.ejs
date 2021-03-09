@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,7 +10,15 @@
 		<input type="text" name="search" class="search">
 		<input type="submit" value = "submit" name= "submit" class="submit">
 	</form>
-	<p class="output" name="output"></p>
+	<% if (results) { %>
+		<ul>
+		    <% for(var i=0; i < results.length; i++) { %>
+		        <li"><%=results[i].id + " | " + results[i].login + " | " + results[i].password + " | " + results[i].role%></li>
+		    <% } %>
+		</ul>
+	<% } else { %>
+	    <p>No results found, change search params</p>
+	<% } %>
 	<script src="./../search.js"></script>
 </body>
 </html>

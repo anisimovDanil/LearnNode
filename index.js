@@ -5,7 +5,7 @@ const express = require('express'),
 	  cookieParser = require('cookie-parser');
 
 const db = require('./connect_db/connect.js');
-	  //route_search = require('./search/search.js');
+	  route_search = require('./search/search.js');
 
 
 const app = express();
@@ -17,7 +17,7 @@ app.set('view engine', 'ejs');
 
 app.use(cookieParser("cookie signature key"));
 
-//app.use(route_search);
+app.use(route_search);
 const urlencodedParser = bodyParser.urlencoded({extended: false});
 
 
@@ -41,7 +41,7 @@ app.get('/log_in', (req, res, next) => {
 });
 
 app.get('/admin', (req, res, next) => {
-	//res.sendFile(__dirname + '/admin/admin.ejs');
+	//res.sendFile(__dirname + '/admin/admin.html');
 	res.render('admin/admin.ejs');
 });
 
@@ -52,21 +52,19 @@ app.post('/', urlencodedParser, (req, res, next) => {
 	var login = req.body.login;
 	var password = req.body.password;
 	if (login && password) {
-		//connection.connect(
-		//connection.query('SELECT * FROM people WHERE login = ? AND password = ?', [login, password], function(error, results, fields) { // protection
+		//db.connect(
+		//db.query('SELECT * FROM people WHERE login = ? AND password = ?', [login, password], function(error, results, fields) { // protection
 		db.query("SELECT * FROM people WHERE login = '" + login + "' AND password = '" + password + "'", function(error, results, fields) {
-				res.cookie('signed_cookie', 'user', {signed:true});
+				//res.cookie('signed_cookie', 'user', {signed:true});
 
-				app.get('/user', function(req, res, next){
+				/*app.get('/user', function(req, res, next){
 						console.log('5 ' + req.headers.cookie);
 						res.sendFile(__dirname + '/user/user.html');
 						console.log('6 ' + req.signedCookies.signed_cookie);
-					});
+					});*/
 
 
 				if(results[0].password && results[0].role === 'user'){//&& req.signedCookies.signed_cookie == 'user'
-
-					
 					res.redirect('/user');
 				/*f(req.headers.cookie == undefined) {
 					console.log('1 ' + req.headers.cookie);
@@ -86,7 +84,8 @@ app.post('/', urlencodedParser, (req, res, next) => {
 
 
 				if(results[0].password && results[0].role === 'admin'){
-					res.redirect('/admin');
+					//res.redirect('/admin');	//	TypeError: Cannot read property 'password' of undefined
+					res.render('admin/admin.ejs');
 				}
 		});
 	} else {
@@ -116,5 +115,13 @@ app.listen(3000, () => {
     console.log('Server is running on port 3000...');
 });
 
-//sql
-// '; OR 1=1'
+//sql (log_in)
+// ' OR 1=1 #'
+
+//sql (search)
+// a' OR id = '2' #'
+// a' OR login = 'admin' #'
+// a' UNION SELECT * FROM people;#'
+
+//password 
+//  ' OR password>'a
