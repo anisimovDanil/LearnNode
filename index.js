@@ -2,7 +2,8 @@ const express = require('express'),
 	  bodyParser = require('body-parser'),
 	  mysql = require('mysql'),
 	  session = require('express-session'), 
-	  cookieParser = require('cookie-parser');
+	  cookieParser = require('cookie-parser'),
+	  path = require('path');
 
 const db = require('./connect_db/connect.js');
 	  route_search = require('./search/search.js');
@@ -15,37 +16,42 @@ app.set('view engine', 'ejs');
 // mysql.createConnection
 // mysql.createPool
 
-app.use(cookieParser("cookie signature key"));
-
 app.use(route_search);
+
+app.use(session({
+	secret: 'goose_duck',
+	resave: false,
+	saveUninitialized: false
+	/*cookie: {
+	    expires: 600
+	}*/
+}));
+
 const urlencodedParser = bodyParser.urlencoded({extended: false});
+app.use(cookieParser("goose_cookie_key"));
 
 
-/*app.use(session({
-  secret: 'goose_duck',
-  resave: false,
-  saveUninitialized: true,
-  cookie: {},
-  name: 'myCustomName'
-}));*/
-
-
-
-app.get('/cookie/delete', (req, res, next) => {
+app.get('/log_out', (req, res, next) => {
+	delete req.session.login;
 	res.clearCookie('signed_cookie');
 	res.send('cookie deleted');
 });
 
 app.get('/log_in', (req, res, next) => {
-	res.sendFile(__dirname + '/index.html');
+	res.sendFile(path.join(__dirname + '/index.html')); // (1)
+});
+
+app.get('/user', function(req, res, next){
+	//res.cookie('signed_cookie', 'user', {signed:true});
+	if(req.session.loggedin) res.sendFile(__dirname + '/user/user.html');
+	else
+		res.send('Please input your login and password');
 });
 
 app.get('/admin', (req, res, next) => {
 	//res.sendFile(__dirname + '/admin/admin.html');
 	res.render('admin/admin.ejs');
 });
-
-
 
 
 app.post('/', urlencodedParser, (req, res, next) => { 
@@ -55,33 +61,16 @@ app.post('/', urlencodedParser, (req, res, next) => {
 		//db.connect(
 		//db.query('SELECT * FROM people WHERE login = ? AND password = ?', [login, password], function(error, results, fields) { // protection
 		db.query("SELECT * FROM people WHERE login = '" + login + "' AND password = '" + password + "'", function(error, results, fields) {
-				//res.cookie('signed_cookie', 'user', {signed:true});
-
-				/*app.get('/user', function(req, res, next){
-						console.log('5 ' + req.headers.cookie);
-						res.sendFile(__dirname + '/user/user.html');
-						console.log('6 ' + req.signedCookies.signed_cookie);
-					});*/
-
-
 				if(results[0].password && results[0].role === 'user'){//&& req.signedCookies.signed_cookie == 'user'
+					req.session.loggedin = true;
+					req.session.login = login;
+					console.log(req.session);
+					/*res.send(`
+						<h1>Hello, ${results[0].login}</h1>
+						<a href="/log_out">logout</a>
+					`);*/
 					res.redirect('/user');
-				/*f(req.headers.cookie == undefined) {
-					console.log('1 ' + req.headers.cookie);
-					res.cookie('signed_cookie', 'user', {signed:true});
-					console.log('2 ' + req.headers.cookie);
-					next();
 				}
-				else{
-					res.cookie('signed_cookie', 'user', {signed:true});
-					console.log('4 ' + req.headers.cookie);
-					res.redirect('/user');	
-				}		*/			
-				}
-
-
-
-
 
 				if(results[0].password && results[0].role === 'admin'){
 					//res.redirect('/admin');	//	TypeError: Cannot read property 'password' of undefined
@@ -93,22 +82,6 @@ app.post('/', urlencodedParser, (req, res, next) => {
 		res.end();
 	}
 });
-
-/*app.post('/user', urlencodedParser, function(req, res, next) { 
-	if (req.session) {
-        // delete session object
-        req.session.destroy(function(err) {
-            if(err) {
-                return next(err);
-            } else {
-                req.session = null;
-                console.log("logout successful");
-                return res.redirect('/');
-            }
-        });
-    } 
-});*/
-
 
 
 app.listen(3000, () => {
