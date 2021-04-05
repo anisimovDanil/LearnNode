@@ -3,18 +3,20 @@ const express = require('express'),
 
 const db = require('./../connect_db/connect.js');
 const router = express.Router();
-//<p><%= results[i].id + " | " + results[i].login + " | " + results[i].password + " | " + results[i].role %></p>
-//	<%} %>
 
 //router.set('view engine', 'ejs');
 
 const urlencodedParser = bodyParser.urlencoded({extended: false});
 
+/*router.use("/search", function(req, res){
+	console.log(req.query);
+	res.render('search.ejs', {results: null});
+});*/
 
 
-
-router.get('/search', (req, res, next) => {
+router.get('/search?:search', (req, res, next) => {
 	//res.sendFile(__dirname + './../views/search.html');
+
 	res.render('search.ejs', {results: null});
 	//res.render("search.ejs", {results: ["goose", "duck"]});
 });
@@ -26,17 +28,11 @@ router.post('/search', urlencodedParser, (req, res, next) => {
 			console.log(results);
 			console.log(results.length);
 			if(results.length > 0){
-			    
-				res.render("search.ejs", {results: results});
-			  
-				
-				/*for(let i in results){
-					//res.write("<p>" + results[i].login + "</p>");
-					//res.json(results[i].id + " | " + results[i].login + " | " + results[i].password + " | " + results[i].role);
-				}*/
+				console.log(req.params)
+				res.render("search" + "?" + search, {results: results});
 			}
 			else{
-				res.render("search.ejs", {results: null});
+				res.render("search" + "?" + search, {results: null});
 			}
 		});
 	}

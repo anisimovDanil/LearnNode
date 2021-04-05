@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TITLE</title>
+    <link rel="stylesheet" href="/css/reviews/style.css" />
+   
+  </head>
+  <body>
+    <section id="user-input">
+      <form method="POST" class="form" action='/reviews'>
+        <div class="form-control">
+          <label for="user-message">Your Message</label>
+          <textarea id="user-message" name="user_message"></textarea>
+        </div>
+        <button type="submit">Send Message</button>
+      </form>
+    </section>
+    <section id="user-messages">
+      <ul></ul>
+    </section>
+     <script src="reviews.js" defer></script>
+  </body>
+</html>
